@@ -31,6 +31,7 @@ def root():
 
 @app.get("/poll_db_data")
 async def poll_db_data():
+    # Access the browser to collect information regarding delays
     async with async_playwright() as p:
         browser = await p.chromium.launch() 
 
@@ -51,20 +52,24 @@ async def poll_db_data():
 
         print("TIME TAGS:", await page.locator("time").count())
 
-        html = await page.content()
 
+        # Save the loaded html of the page locally to dissect later
+        html = await page.content()
         with open("bahn.html", "w", encoding="utf-8") as f:
             f.write(html)
 
         preprocess()
 
 def preprocess():
+    # Load the html to dissect relevant parts out of it
     with open("bahn.html", encoding="utf-8") as f:
         tree = html.fromstring(f.read())
 
+    # We are interested in the list elements that contain distinct trips
     times = tree.xpath("//li[.//time]")
     results = []
 
+    # For each distinct trip extract necessary info out of the html
     for item in times:
         elements = item.xpath(".//time/text()")
         train = item.xpath(".//span[contains(@class, 'verbindungsabschnitt-visualisierung__verkehrsmittel-text')]/text()")
@@ -72,6 +77,7 @@ def preprocess():
 
         id = (train[0] if len(train) > 0 else None) + "_" + (elements[0] if len(elements) > 0 else None)
 
+        # Get the time and if there are delays those as well
         query_time = timestamp
         planned_arrival = elements[0] if len(elements) > 0 else None
         actual_arrival = elements[1] if len(elements) > 1 else None

@@ -1,11 +1,20 @@
 Next steps:
-1. Create a database
-1.1 Adjust the docker-compose.yml to work this way
-1.2 reset_db
-1.3 init_db
-1.4 (psycopg2)
 
-3. Retrieve data from db
-3.1 turn results from sql queries to df
+2. Interaction with db:
+2.1. Paste polled data to the postgres db
+2.2  Write retrieval queries (generic)
+2.3  Write debugging functionality (delete everything, print everything)
 
-4. PERIODICALLY POLL DATA
+3. PERIODICALLY POLL DATA
+3.1 POLL
+3.2 WRITE TO DB
+
+4. MOVE TO RASPBERRY PI
+
+5. Create Forecasting Data Retrieval
+
+6. Build a visualization Frontend
+
+--- Wait until enough data has been polled over some days ---
+
+7.

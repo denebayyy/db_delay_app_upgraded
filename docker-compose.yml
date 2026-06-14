@@ -16,6 +16,12 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB} || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
 
   fetcher_service:
     build:
@@ -31,7 +37,7 @@ services:
       DB_PASSWORD: mypassword
     depends_on:
       - db
-    command: python -m backend.main
+    command: sh -c "python backend/wait_for_db.py && python -m backend.main"
 
   web_scraper:
     build:
@@ -48,7 +54,7 @@ services:
     depends_on:
       - db
       - fetcher_service
-    command: uvicorn backend.main:app --host 0.0.0.0 --port 8000
+    command: sh -c "python backend/wait_for_db.py && uvicorn backend.main:app --host 0.0.0.0 --port 8000"
     ports:
       - "8000:8000"
 

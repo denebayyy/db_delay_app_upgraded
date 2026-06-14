@@ -27,3 +27,13 @@ def insert_data(data):
             data['trip_information']
         ))
         conn.commit()
+
+def get_data_debug():
+    with conn.cursor() as cur:
+        get_query = sql.SQL("""
+        SELECT *
+        FROM train_data
+        """)
+        data = cur.execute(get_query)
+        data = cur.fetchall()
+        return data

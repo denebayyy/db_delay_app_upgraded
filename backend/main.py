@@ -190,3 +190,9 @@ def preprocess(timestamp):
         concat.to_csv(file_path, index=False)
     else:
         df.to_csv(file_path, index=False)
+
+
+@app.get("/get_all_the_data")
+async def poll_db_data():
+    data = db.get_data_debug()
+    print(data)

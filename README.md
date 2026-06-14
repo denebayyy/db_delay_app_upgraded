@@ -7,3 +7,8 @@ Run it via:
 Build it via:
 
 `docker build -t backend-dev .`
+
+
+docker compose build
+docker compose up 
+curl http://localhost

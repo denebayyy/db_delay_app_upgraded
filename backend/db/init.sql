@@ -1,6 +1,6 @@
 
 CREATE TABLE IF NOT EXISTS train_data (
-    id SERIAL PRIMARY KEY,
+    id VARCHAR(50) PRIMARY KEY,
     query_time TIMESTAMP,
     planned_arrival TIMESTAMP,
     actual_arrival TIMESTAMP,

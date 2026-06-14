@@ -42,7 +42,7 @@ async def poll_db_data():
     timestamp = datetime.now(ZoneInfo("Europe/Berlin")).strftime("%Y-%m-%d %H:%M:%S")
     url=f"""https://www.bahn.de/buchung/fahrplan/suche#sts=true&so={coming_from}&zo={going_to}&kl=2&r=13:16:KLASSENLOS:1&soid=A%3D1%40O%3D%C3%9Cbach-Palenberg%40X%3D6097266%40Y%3D50924332%40U%3D80%40L%3D8005935%40p%3D1780342177%40i%3DU%C3%97008015189%40&zoid=A%3D1%40O%3DHauptbahnhof%2C%20Aachen%40X%3D6090767%40Y%3D50768755%40U%3D80%40L%3D501542%40p%3D1780342177%40i%3DU%C3%97028000993%40&sot=ST&zot=ST&soei=8005935&zoei=501542&hd={timestamp}&hza=D&hz=%5B%5D&ar=false&s=true&d=false&vm=00,01,02,03,04,06,07,08,09&fm=false&bp=false&dlt=false&dltv=false"""
     url=f"""https://www.bahn.de/buchung/fahrplan/suche#sts=true&so=Hauptbahnhof%2C%20Aachen&zo=%C3%9Cbach-Palenberg&kl=2&r=13:16:KLASSENLOS:1&soid=A%3D1%40O%3DHauptbahnhof%2C%20Aachen%40X%3D6090767%40Y%3D50768755%40U%3D80%40L%3D501542%40p%3D1780342177%40i%3DU%C3%97028000993%40&zoid=A%3D1%40O%3D%C3%9Cbach-Palenberg%40X%3D6097266%40Y%3D50924332%40U%3D80%40L%3D8005935%40p%3D1780342177%40i%3DU%C3%97008015189%40&sot=ST&zot=ST&soei=501542&zoei=8005935&hd=2026-06-14T22:00:53&hza=D&hz=%5B%5D&ar=false&s=true&d=false&vm=00,01,02,03,04,05,06,07,08,09&fm=false&bp=false&dlt=false&dltv=false"""
-    url=f"""https://www.bahn.de/buchung/fahrplan/suche#sts=true&so=Hauptbahnhof%2C%20Aachen&zo=K%C3%B6ln%20Hbf&kl=2&r=13:16:KLASSENLOS:1&soid=A%3D1%40O%3DHauptbahnhof%2C%20Aachen%40X%3D6090767%40Y%3D50768755%40U%3D80%40L%3D501542%40p%3D1780342177%40i%3DU%C3%97028000993%40&zoid=A%3D1%40O%3DK%C3%B6ln%20Hbf%40X%3D6958730%40Y%3D50943029%40U%3D80%40L%3D8000207%40p%3D1781118700%40i%3DU%C3%97008015458%40&sot=ST&zot=ST&soei=501542&zoei=8000207&hd=2026-06-14T22:00:53&hza=D&hz=%5B%5D&ar=false&s=true&d=false&vm=00,01,02,03,04,05,06,07,08,09&fm=false&bp=false&dlt=false&dltv=false"""
+    #url=f"""https://www.bahn.de/buchung/fahrplan/suche#sts=true&so=Hauptbahnhof%2C%20Aachen&zo=K%C3%B6ln%20Hbf&kl=2&r=13:16:KLASSENLOS:1&soid=A%3D1%40O%3DHauptbahnhof%2C%20Aachen%40X%3D6090767%40Y%3D50768755%40U%3D80%40L%3D501542%40p%3D1780342177%40i%3DU%C3%97028000993%40&zoid=A%3D1%40O%3DK%C3%B6ln%20Hbf%40X%3D6958730%40Y%3D50943029%40U%3D80%40L%3D8000207%40p%3D1781118700%40i%3DU%C3%97008015458%40&sot=ST&zot=ST&soei=501542&zoei=8000207&hd=2026-06-14T22:00:53&hza=D&hz=%5B%5D&ar=false&s=true&d=false&vm=00,01,02,03,04,05,06,07,08,09&fm=false&bp=false&dlt=false&dltv=false"""
     async with async_playwright() as p:
         browser = await p.chromium.launch() 
 
@@ -142,24 +142,32 @@ def preprocess(timestamp):
             actual_destination_ts = None
 
         # If there is a trip before midnight to after midnight
-        if actual_arrival is not None and (planned_arrival_ts - actual_arrival_ts).total_seconds() > 6 * 3600:
+        if actual_arrival is not None and (planned_arrival_ts - actual_arrival_ts).total_seconds() > 8 * 3600:
             actual_arrival_ts = datetime.strptime(first_day_data_prefix + " " + actual_arrival + ":00", date_format) + timedelta(days=1)
 
-        if (planned_arrival_ts - planned_destination_ts).total_seconds() > 6 * 3600:
+        if (planned_arrival_ts - planned_destination_ts).total_seconds() > 8 * 3600:
             planned_destination_ts = datetime.strptime(first_day_data_prefix + " " + planned_destination + ":00", date_format) + timedelta(days=1)
 
-        if actual_destination is not None and (planned_arrival_ts - actual_destination_ts).total_seconds() > 6 * 3600:
+        if actual_destination is not None and (planned_arrival_ts - actual_destination_ts).total_seconds() > 8 * 3600:
             actual_destination_ts = datetime.strptime(first_day_data_prefix + " " + actual_destination + ":00", date_format) + timedelta(days=1)
                
 
         # If trips for the following day are being displayed
-        if second_day != []:
-            pass
+        if second_day != [] and item != times[0]:
 
+            second_date_time = datetime.strptime(second_day[0], "%a. %d. %B %Y")
+            second_day_data_prefix = str(second_date_time)[:10]
+            
+            first_item_planned_arrival = results[0]["planned_arrival"]
+            if (first_item_planned_arrival - planned_arrival_ts).total_seconds() > 10 * 3600: 
 
-        #print(actual_arrival)
+                planned_arrival_ts = datetime.strptime(second_day_data_prefix + " " + planned_arrival + ":00", date_format)
+                planned_destination_ts = datetime.strptime(second_day_data_prefix + " " + planned_destination + ":00", date_format)
 
-        #print(second_day)
+                if actual_arrival is not None:
+                    actual_arrival_ts = datetime.strptime(second_day_data_prefix + " " + actual_arrival + ":00", date_format)
+                if actual_destination is not None:
+                    actual_destination_ts = datetime.strptime(second_day_data_prefix + " " + actual_destination + ":00", date_format)
 
         new_obj = {
             "id": id,

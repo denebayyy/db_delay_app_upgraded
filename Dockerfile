@@ -6,6 +6,18 @@ WORKDIR /app
 
 ENV PYTHONUNBUFFERED=1
 
+# --- Fix: Install and generate the German locale ---
+RUN apt-get update && apt-get install -y locales \
+    && sed -i -e 's/# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/' /etc/locale.gen \
+    && locale-gen \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set locale environment variables (helps Python map them automatically)
+ENV LANG=de_DE.UTF-8
+ENV LANGUAGE=de_DE:de
+ENV LC_ALL=de_DE.UTF-8
+# --------------------------------------------------
+
 RUN pip install --upgrade pip setuptools wheel
 
 COPY requirements.txt .

@@ -12,8 +12,8 @@ conn = psycopg2.connect(
 def insert_data(data):
     with conn.cursor() as cur:
         insert_query = sql.SQL("""
-            INSERT INTO train_data (id, query_time, planned_arrival, actual_arrival, planned_destination, actual_destination, train, cancellation)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO train_data (id, query_time, planned_arrival, actual_arrival, planned_destination, actual_destination, train, cancellation, trip_information)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """)
         cur.execute(insert_query, (
             data['id'],
@@ -23,6 +23,7 @@ def insert_data(data):
             data['planned_destination'],
             data['actual_destination'],
             data['train'],
-            data['cancellation']
+            data['cancellation'],
+            data['trip_information']
         ))
         conn.commit()

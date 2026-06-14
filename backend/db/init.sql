@@ -7,5 +7,6 @@ CREATE TABLE IF NOT EXISTS train_data (
     planned_destination TIMESTAMP,
     actual_destination TIMESTAMP,
     train VARCHAR(255),
-    cancellation BOOLEAN
+    cancellation BOOLEAN,
+    trip_information VARCHAR(255)
 );

@@ -28,6 +28,14 @@ def insert_data(data):
         ))
         conn.commit()
 
+def remove_data():
+    # Dummy function to remove all the stored data.
+    # Truncate resets the table, Delete only row-by-row
+    with conn.cursor() as cur:
+        truncate_query = sql.SQL("TRUNCATE TABLE train_data RESTART IDENTITY")
+        cur.execute(truncate_query)
+        conn.commit()
+
 def get_data_debug():
     with conn.cursor() as cur:
         get_query = sql.SQL("""

@@ -38,6 +38,7 @@ def remove_data():
 
 def get_data_debug():
     with conn.cursor() as cur:
+        # get all the data
         get_query = sql.SQL("""
         SELECT *
         FROM train_data
@@ -45,3 +46,36 @@ def get_data_debug():
         data = cur.execute(get_query)
         data = cur.fetchall()
         return data
+
+def save_job(job_config):
+    """Insert or update a job configuration."""
+    with conn.cursor() as cur:
+        cur.execute("""
+            INSERT INTO jobs_config (id, from_station, to_station, interval, enabled, max_retries, timeout)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (id) DO UPDATE SET
+                from_station = EXCLUDED.from_station,
+                to_station = EXCLUDED.to_station,
+                interval = EXCLUDED.interval,
+                enabled = EXCLUDED.enabled,
+                max_retries = EXCLUDED.max_retries,
+                timeout = EXCLUDED.timeout
+        """, (job_config.id, job_config.from_station, job_config.to_station, 
+              job_config.interval, job_config.enabled, job_config.max_retries, job_config.timeout))
+        conn.commit()
+
+def load_all_jobs():
+    """Load all saved job configurations from database."""
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT id, from_station, to_station, interval, enabled, max_retries, timeout
+            FROM jobs_config
+        """)
+        rows = cur.fetchall()
+        return rows
+
+def delete_job_config(job_id):
+    """Delete a job configuration from database."""
+    with conn.cursor() as cur:
+        cur.execute("DELETE FROM jobs_config WHERE id = %s", (job_id,))
+        conn.commit()
